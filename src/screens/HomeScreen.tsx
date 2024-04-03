@@ -1,11 +1,12 @@
 import React, { useState } from 'react'
-import { ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { FlatList, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import { useStore } from '../store/store'
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { BORDERRADIUS, COLORS, FONTFAMILY, FONTSIZE, SPACING } from '../theme/theme';
 import HeaderBar from '../components/HeaderBar';
 import CustomIcon from '../components/CustomIcon';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
+import CoffeeCard from '../components/CoffeeCard';
 
 const getCategoriesFromData = (data: any) => {
   let temp: any = {};
@@ -70,6 +71,54 @@ const HomeScreen = () => {
             style={styles.TextInputContainer}
             />
         </View>
+
+          {/* Category List */}
+        <ScrollView horizontal
+        showsHorizontalScrollIndicator={false} 
+        contentContainerStyle={styles.CategoryScrollViewStyle}>
+          {categories.map((data,index)=> (
+            <View key={index.toString()} style={styles.CategoryScrollViewContainer}>
+              <TouchableOpacity 
+              style={styles.CategoryScrollViewItem}
+              onPress={() => {
+                setCategoryIndex({index:index,category:categories[index]})
+                setSortedCoffee([...getCoffeeList(categories[index] , CoffeeList)]);
+              }}>
+                <Text style={[
+                  styles.CategoryText,
+                  categoryIndex.index==index ? {color:COLORS.primaryOrangeHex}:{color:COLORS.primaryLightGreyHex}
+                  ]} >{data}</Text>
+                {categoryIndex.index == index ? <View style={styles.ActiveCategory} />:<></>}
+              </TouchableOpacity>
+            </View>
+          ))}
+        </ScrollView>
+
+        {/* Coffee Flat List */}
+        <FlatList horizontal 
+        showsHorizontalScrollIndicator={false}
+        data={sortedCoffee}
+        contentContainerStyle={styles.FlatListContainer}
+        keyExtractor={item => item.id}
+        renderItem={({item}) => {
+          return <TouchableOpacity>
+            <CoffeeCard name={item.name}
+            index={item.index}
+            type={item.type}
+            rosted={item.rosted}
+            imagelink_square={item.imagelink_square}
+            id={item.id}
+            special_ingredient={item.special_ingredient}
+            average_rating={item.average_rating}
+            price={item.prices[2]}
+            ButtonPressHandler={()=>{}}
+            />
+          </TouchableOpacity>
+        }}
+        />
+
+        {/* Beans Flat List */}
+
       </ScrollView>
     </View>
   )
@@ -105,6 +154,34 @@ const styles = StyleSheet.create({
     fontFamily: FONTFAMILY.poppins_medium,
     fontSize:FONTSIZE.size_14,
     color:COLORS.primaryWhiteHex
+  },
+  CategoryScrollViewStyle:{
+    paddingHorizontal:SPACING.space_20,
+    marginBottom:SPACING.space_20,
+  },
+  CategoryScrollViewItem:{
+    alignItems:'center',
+  },
+  ActiveCategory:{
+    height:SPACING.space_10,
+    width:SPACING.space_10,
+    borderRadius:BORDERRADIUS.radius_10,
+    backgroundColor:COLORS.primaryOrangeHex,
+  },
+  CategoryScrollViewContainer:{
+    paddingHorizontal:SPACING.space_15,
+
+  },
+  CategoryText:{
+    fontFamily:FONTFAMILY.poppins_medium,
+    fontSize:FONTSIZE.size_16,
+    color:COLORS.primaryLightGreyHex,
+    marginBottom:SPACING.space_4
+  },
+  FlatListContainer:{
+    gap:SPACING.space_20,
+    paddingVertical:SPACING.space_20,
+    paddingHorizontal:SPACING.space_30
   },
 })
 
